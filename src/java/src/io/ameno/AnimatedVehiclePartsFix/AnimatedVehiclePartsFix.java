@@ -53,7 +53,9 @@ public class AnimatedVehiclePartsFix {
             if (part == null) continue;
 
             String animId = resolveAnimId(part);
-            if (animId == null) continue;
+            boolean isTuningPart = resolveTuning2ModelId(part) != null;
+
+            if (animId == null && !(forceRecreate && isTuningPart)) continue;
 
             if (!isPartPresent(part)) continue;
 
@@ -61,7 +63,10 @@ public class AnimatedVehiclePartsFix {
             if (models.isEmpty()) continue;
 
             syncModelEntries(vehicle, part, models, forceRecreate);
-            vehicle.playPartAnim(part, animId);
+
+            if (animId != null) {
+                vehicle.playPartAnim(part, animId);
+            }
         }
     }
 
