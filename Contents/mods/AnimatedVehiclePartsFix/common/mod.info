@@ -1,0 +1,10 @@
+name=Animated Vehicle Parts Fix
+poster=preview.png
+id=AnimatedVehiclePartsFix
+icon=icon.png
+description=
+author=Amenophis
+modversion=1.0.0
+require=ZombieBuddy
+javaJarFile=media/java/AnimatedVehiclePartsFix.jar
+javaPkgName=io.ameno.AVPF
