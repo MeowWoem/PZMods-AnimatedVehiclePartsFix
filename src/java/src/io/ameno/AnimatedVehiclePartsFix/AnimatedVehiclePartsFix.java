@@ -52,10 +52,16 @@ public class AnimatedVehiclePartsFix {
             VehiclePart part = vehicle.getPartByIndex(i);
             if (part == null) continue;
 
+            boolean hasLight = part.getLight() != null;
+            if (forceRecreate && hasLight) {
+                vehicle.transmitPartLight(part);
+            }
+
             String animId = resolveAnimId(part);
             boolean isTuningPart = resolveTuning2ModelId(part) != null;
+            boolean needsForceRefresh = forceRecreate && (isTuningPart || hasLight);
 
-            if (animId == null && !(forceRecreate && isTuningPart)) continue;
+            if (animId == null && !needsForceRefresh) continue;
 
             if (!isPartPresent(part)) continue;
 
@@ -119,6 +125,14 @@ public class AnimatedVehiclePartsFix {
                     return List.of(scooped);
                 }
             }
+        }
+
+        if (part.getLight() != null) {
+            List<VehicleScript.Model> allModels = new ArrayList<>();
+            for (Object m : scriptPart.models) {
+                allModels.add((VehicleScript.Model) m);
+            }
+            return allModels;
         }
 
         InventoryItem item = part.getInventoryItem();
