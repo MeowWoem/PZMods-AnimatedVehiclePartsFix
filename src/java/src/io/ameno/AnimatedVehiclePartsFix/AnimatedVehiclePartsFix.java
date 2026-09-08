@@ -100,12 +100,12 @@ public class AnimatedVehiclePartsFix {
             VehicleScript.Model primary = findModelById(scriptPart, tuning2ModelId);
             if (primary != null) {
                 List<VehicleScript.Model> result = new ArrayList<>();
-                result.add(primary);
                 boolean rusted = tuning2ModelId.contains("Rusted");
                 VehicleScript.Model anchor = findModelById(scriptPart, rusted ? "anchorRusted" : "anchorNormal");
                 if (anchor != null) {
                     result.add(anchor);
                 }
+                result.add(primary);
                 return result;
             }
         }
