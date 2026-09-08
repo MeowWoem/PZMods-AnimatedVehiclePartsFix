@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import me.zed_0xff.zombie_buddy.Patch;
+import se.krka.kahlua.vm.KahluaTable;
 import zombie.inventory.InventoryItem;
 import zombie.scripting.objects.Item;
 import zombie.scripting.objects.VehiclePartModel;
@@ -56,51 +57,11 @@ public class AnimatedVehiclePartsFix {
 
             if (!isPartPresent(part)) continue;
 
-            if (forceRecreate) {
-                debugDump(part); // <-- TEMPORAIRE : uniquement au moment ou ca casse
-            }
+            List<VehicleScript.Model> models = resolveDisplayModels(part);
+            if (models.isEmpty()) continue;
 
-            VehicleScript.Model model = resolveDisplayModel(part);
-            if (model == null) continue;
-
-            syncModelEntries(vehicle, part, model, forceRecreate);
+            syncModelEntries(vehicle, part, models, forceRecreate);
             vehicle.playPartAnim(part, animId);
-        }
-    }
-
-    public static void debugDump(VehiclePart part) {
-        System.out.println("[AVPF-DEBUG] ===== part.getId()=" + part.getId() + " =====");
-
-        VehicleScript.Part scriptPart = part.getScriptPart();
-        if (scriptPart != null && scriptPart.models != null) {
-            for (Object m : scriptPart.models) {
-                VehicleScript.Model model = (VehicleScript.Model) m;
-                System.out.println("[AVPF-DEBUG]   scriptPart.models entry -> id=" + model.getId() + " file=" + model.getFile());
-            }
-        } else {
-            System.out.println("[AVPF-DEBUG]   scriptPart ou scriptPart.models est null");
-        }
-
-        InventoryItem item = part.getInventoryItem();
-        if (item == null) {
-            System.out.println("[AVPF-DEBUG]   part.getInventoryItem() == null");
-            return;
-        }
-        System.out.println("[AVPF-DEBUG]   item installe -> fullType=" + item.getFullType() + " displayName=" + item.getDisplayName());
-
-        Item scriptItem = item.getScriptItem();
-        if (scriptItem == null) {
-            System.out.println("[AVPF-DEBUG]   item.getScriptItem() == null");
-            return;
-        }
-
-        ArrayList<VehiclePartModel> vpms = scriptItem.getVehiclePartModels();
-        if (vpms == null || vpms.isEmpty()) {
-            System.out.println("[AVPF-DEBUG]   getVehiclePartModels() est null ou vide");
-            return;
-        }
-        for (VehiclePartModel vpm : vpms) {
-            System.out.println("[AVPF-DEBUG]   vehiclePartModel -> partId=" + vpm.partId + " partModelId=" + vpm.partModelId + " modelId=" + vpm.modelId);
         }
     }
 
@@ -123,9 +84,26 @@ public class AnimatedVehiclePartsFix {
         return !requiresItem || part.getInventoryItem() != null;
     }
 
-    public static VehicleScript.Model resolveDisplayModel(VehiclePart part) {
+    public static List<VehicleScript.Model> resolveDisplayModels(VehiclePart part) {
         VehicleScript.Part scriptPart = part.getScriptPart();
-        if (scriptPart == null || scriptPart.models == null || scriptPart.models.isEmpty()) return null;
+        if (scriptPart == null || scriptPart.models == null || scriptPart.models.isEmpty()) {
+            return List.of();
+        }
+
+        String tuning2ModelId = resolveTuning2ModelId(part);
+        if (tuning2ModelId != null) {
+            VehicleScript.Model primary = findModelById(scriptPart, tuning2ModelId);
+            if (primary != null) {
+                List<VehicleScript.Model> result = new ArrayList<>();
+                result.add(primary);
+                boolean rusted = tuning2ModelId.contains("Rusted");
+                VehicleScript.Model anchor = findModelById(scriptPart, rusted ? "anchorRusted" : "anchorNormal");
+                if (anchor != null) {
+                    result.add(anchor);
+                }
+                return result;
+            }
+        }
 
         InventoryItem item = part.getInventoryItem();
         if (item != null) {
@@ -134,45 +112,59 @@ public class AnimatedVehiclePartsFix {
             if (vehiclePartModels != null) {
                 for (VehiclePartModel vpm : vehiclePartModels) {
                     if (!vpm.partId.equalsIgnoreCase(part.getId())) continue;
-                    for (Object m : scriptPart.models) {
-                        VehicleScript.Model model = (VehicleScript.Model) m;
-                        if (vpm.partModelId.equalsIgnoreCase(model.getId())) {
-                            return model;
-                        }
+                    VehicleScript.Model match = findModelById(scriptPart, vpm.partModelId);
+                    if (match != null) {
+                        return List.of(match);
                     }
                 }
             }
         }
 
-        for (Object m : scriptPart.models) {
-            VehicleScript.Model model = (VehicleScript.Model) m;
-            if ("Default".equals(model.id)) return model;
+        VehicleScript.Model fallback = findModelById(scriptPart, "Default");
+        if (fallback == null) {
+            fallback = (VehicleScript.Model) scriptPart.models.get(0);
         }
-        return (VehicleScript.Model) scriptPart.models.get(0);
+        return List.of(fallback);
     }
 
-    public static void syncModelEntries(BaseVehicle vehicle, VehiclePart part, VehicleScript.Model model, boolean forceRecreate) {
-        int matchCount = 0;
-        boolean keptOne = false;
+    public static String resolveTuning2ModelId(VehiclePart part) {
+        if (!part.hasModData()) return null;
+        Object tuning2Obj = part.getModData().rawget("tuning2");
+        if (!(tuning2Obj instanceof KahluaTable tuning2Table)) return null;
+        Object modelObj = tuning2Table.rawget("model");
+        return modelObj instanceof String ? (String) modelObj : null;
+    }
+
+    public static VehicleScript.Model findModelById(VehicleScript.Part scriptPart, String id) {
+        if (id == null) return null;
+        for (Object m : scriptPart.models) {
+            VehicleScript.Model model = (VehicleScript.Model) m;
+            if (id.equalsIgnoreCase(model.getId())) {
+                return model;
+            }
+        }
+        return null;
+    }
+
+    public static void syncModelEntries(BaseVehicle vehicle, VehiclePart part, List<VehicleScript.Model> wantedModels, boolean forceRecreate) {
+        List<VehicleScript.Model> stillMissing = new ArrayList<>(wantedModels);
 
         Iterator<BaseVehicle.ModelInfo> it = vehicle.models.iterator();
         while (it.hasNext()) {
             BaseVehicle.ModelInfo info = it.next();
             if (info.part == null || !info.part.getId().equals(part.getId())) continue;
 
-            matchCount++;
-            boolean shouldRemove = forceRecreate || (matchCount > 1 && keptOne);
-            if (shouldRemove) {
+            boolean isWanted = !forceRecreate && stillMissing.remove(info.scriptModel);
+            if (!isWanted) {
                 if (info.animPlayer != null) {
                     info.animPlayer = null;
                 }
                 it.remove();
-            } else {
-                keptOne = true;
             }
         }
 
-        if (forceRecreate || matchCount == 0) {
+        List<VehicleScript.Model> toAdd = forceRecreate ? wantedModels : stillMissing;
+        for (VehicleScript.Model model : toAdd) {
             vehicle.setModelVisible(part, model, true);
         }
     }
