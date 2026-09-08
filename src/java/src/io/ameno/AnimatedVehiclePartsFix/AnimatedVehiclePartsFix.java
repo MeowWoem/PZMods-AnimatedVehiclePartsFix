@@ -105,6 +105,17 @@ public class AnimatedVehiclePartsFix {
             }
         }
 
+        if ("EngineDoor".equals(part.getId())) {
+            BaseVehicle vehicle = part.getVehicle();
+            VehiclePart scoop = vehicle != null ? vehicle.getPartById("ATA2AirScoop") : null;
+            if (scoop != null && scoop.getInventoryItem() != null) {
+                VehicleScript.Model scooped = findModelById(scriptPart, "Scooped");
+                if (scooped != null) {
+                    return List.of(scooped);
+                }
+            }
+        }
+
         InventoryItem item = part.getInventoryItem();
         if (item != null) {
             Item scriptItem = item.getScriptItem();
