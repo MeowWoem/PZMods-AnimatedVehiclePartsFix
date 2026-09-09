@@ -14,9 +14,42 @@ import zombie.scripting.objects.VehicleScript;
 import zombie.vehicles.BaseVehicle;
 import zombie.vehicles.VehiclePart;
 
+import java.lang.reflect.Field;
+
 public class AnimatedVehiclePartsFix {
 
     public static final Set<BaseVehicle> pendingVehicles = new HashSet<>();
+
+    public static final Field LIGHTS_FIELD = resolveLightsField();
+
+    public static Field resolveLightsField() {
+        try {
+            Field f = BaseVehicle.class.getDeclaredField("lights");
+            f.setAccessible(true);
+            return f;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Patch(className = "zombie.vehicles.BaseVehicle", methodName = "adoptParts")
+    public static class PatchRefreshLights {
+        @Patch.OnExit
+        public static void exit(@Patch.This BaseVehicle vehicle) {
+            if (LIGHTS_FIELD == null || vehicle == null) return;
+            try {
+                @SuppressWarnings("unchecked")
+                List<VehiclePart> lights = (List<VehiclePart>) LIGHTS_FIELD.get(vehicle);
+                lights.clear();
+                for (int i = 0; i < vehicle.getPartCount(); i++) {
+                    VehiclePart part = vehicle.getPartByIndex(i);
+                    if (part != null && part.getLight() != null) {
+                        lights.add(part);
+                    }
+                }
+            } catch (Exception e) {  }
+        }
+    }
 
     @Patch(className = "zombie.vehicles.BaseVehicle", methodName = "addToWorld")
     public static class PatchAddToWorld {
@@ -54,6 +87,7 @@ public class AnimatedVehiclePartsFix {
 
             boolean hasLight = part.getLight() != null;
             if (forceRecreate && hasLight) {
+                vehicle.getParts().updatePart(part);
                 vehicle.transmitPartLight(part);
             }
 
