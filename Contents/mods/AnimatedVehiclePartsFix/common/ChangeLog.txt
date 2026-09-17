@@ -15,3 +15,11 @@ Hotfix
 Fixed:
 - Fixed the headlight light cones (and tail lights) stop responding after reloading the chunk.
 [ ------ ]
+
+[ v1.2.0 - 09.17.2026 ]
+Changed:
+- Refactored animated vehicle part handlers to reduce overhead and potential problems with vehicle mods.
+Fixed:
+- Rooflight visual states (on/off) update now properly upon returning to the chunk.
+- Part visual condition do not reset anymore upon returning to the chunk.
+[ ------ ]
