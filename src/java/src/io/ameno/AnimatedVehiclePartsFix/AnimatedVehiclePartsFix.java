@@ -1,16 +1,8 @@
 package io.ameno.AVPF;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import me.zed_0xff.zombie_buddy.Patch;
-import se.krka.kahlua.vm.KahluaTable;
-import zombie.inventory.InventoryItem;
-import zombie.scripting.objects.Item;
-import zombie.scripting.objects.VehiclePartModel;
-import zombie.scripting.objects.VehicleScript;
 import zombie.vehicles.BaseVehicle;
 import zombie.vehicles.BaseVehicle.ModelInfo;
 import zombie.vehicles.VehiclePart;
