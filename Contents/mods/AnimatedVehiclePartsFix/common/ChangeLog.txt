@@ -23,3 +23,8 @@ Fixed:
 - Rooflight visual states (on/off) update now properly upon returning to the chunk.
 - Part visual condition do not reset anymore upon returning to the chunk.
 [ ------ ]
+
+[ v1.2.1 - 09.18.2026 ]
+Changed:
+- Clean the code
+[ ------ ]
