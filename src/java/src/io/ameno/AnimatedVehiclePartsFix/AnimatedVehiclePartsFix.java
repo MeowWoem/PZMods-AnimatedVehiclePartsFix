@@ -48,9 +48,9 @@ public class AnimatedVehiclePartsFix {
                 if (info == null || info.part == null) continue;
                 String id = info.part.getId();
                 if (id == null) continue;
-                VehiclePart current = vehicle.getPartById(id);
-                if (current != null && current != info.part) {
-                    info.part = current;
+                VehiclePart part = vehicle.getPartById(id);
+                if (part != null && part != info.part) {
+                    info.part = part;
                 }
             }
         } catch (Exception e) { }
