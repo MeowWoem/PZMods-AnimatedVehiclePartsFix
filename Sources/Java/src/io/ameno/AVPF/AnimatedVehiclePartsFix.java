@@ -1,6 +1,5 @@
 package io.ameno.AVPF;
 
-import java.util.ArrayList;
 import java.util.List;
 import me.zed_0xff.zombie_buddy.Patch;
 import zombie.vehicles.BaseVehicle;
