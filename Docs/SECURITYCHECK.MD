@@ -33,9 +33,9 @@ If you want to inspect the exact Java bytecode executed by the mod, you can deco
 2. Go to [jdec.app](https://jdec.app/) (a web-based Java decompiler).
 3. Drag and drop the `.jar` file into the website.
 4. Open the decompiled code and compare it line-by-line with my official open-source code on GitHub:
-   - **Official GitHub Source Files:**
-   + [AnimatedVehiclePartsFix.java](https://github.com/MeowWoem/PZMods-AnimatedVehiclePartsFix/blob/main/Sources/Java/src/io/ameno/AVPF/AnimatedVehiclePartsFix.java)
-   + [Patch_BaseVehicle.java](https://github.com/MeowWoem/PZMods-AnimatedVehiclePartsFix/blob/main/Sources/Java/src/io/ameno/AVPF/Patch_BaseVehicle.java)
+    - **Official GitHub Source Files:**
+        + [AnimatedVehiclePartsFix.java](https://github.com/MeowWoem/PZMods-AnimatedVehiclePartsFix/blob/main/Sources/Java/src/io/ameno/AVPF/AnimatedVehiclePartsFix.java)
+        + [Patch_BaseVehicle.java](https://github.com/MeowWoem/PZMods-AnimatedVehiclePartsFix/blob/main/Sources/Java/src/io/ameno/AVPF/Patch_BaseVehicle.java)
 5. You will see that the compiled `.jar` matches the open-source repository exactly, containing no hidden network calls or disk operations.
 
 ---
