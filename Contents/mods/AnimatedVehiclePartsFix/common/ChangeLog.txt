@@ -28,3 +28,8 @@ Fixed:
 Changed:
 - Clean the code
 [ ------ ]
+
+[ v1.2.2 - 09.23.2026 ]
+Added:
+- Added a main menu modal if ZombieBuddy is missing or if the mod was not approved at game launch
+[ ------ ]
