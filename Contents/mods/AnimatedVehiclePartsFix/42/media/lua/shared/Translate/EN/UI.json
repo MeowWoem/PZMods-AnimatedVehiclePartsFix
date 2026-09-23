@@ -1,0 +1,6 @@
+{
+    "UI_AVPF_ZBCheck": "ZombieBuddy not detected or mod not approved!",
+    "UI_AVPF_ZBCheck_Confirm": "Go to ZombieBuddy Workshop Page",
+    "UI_AVPF_ZBCheck_Close": "Close",
+    "UI_AVPF_ZBCheck_Message": "<RGB:1,0.2,0.2> Animated Vehicle Parts Fix - Core Error <LINE> <LINE><RGB:1,1,1> ZombieBuddy is not active or failed to load. <LINE> <LINE>This usually happens if: <LINE><RGB:0.9,0.8,0.2> - Animated Vehicle Parts Fix was not approved at game launch. <LINE>- ZombieBuddy is missing or improperly installed. <LINE> <LINE><RGB:0.4,0.8,1> Please check your mods setup or view the ZombieBuddy installation guide."
+}
